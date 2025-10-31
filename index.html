@@ -273,7 +273,7 @@ const ResultsDisplay = ({ results }) => {
 
     return (
         React.createElement(Card, { className: "mt-8 transition-all duration-500 ease-in-out" },
-            React.createElement('h2', { className: "text-2xl font-bold text-center mb-6" }, "Resultados de la Proyección"),
+            React.createElement('h2', { className: "text-2xl font-bold text-center mb-6 text-slate-900 dark:text-slate-100" }, "Resultados de la Proyección"),
             React.createElement('div', { className: "grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" },
                 React.createElement(SummaryCard, {
                     label: "Total Invertido",
@@ -749,7 +749,7 @@ const GoalTab = () => {
     return (
         React.createElement('div', { id: "goal-tab" },
             React.createElement(Card, null,
-                React.createElement('h2', { className: "text-2xl font-bold text-center mb-6" }, "🎯 Planificador de Metas"),
+                React.createElement('h2', { className: "text-2xl font-bold text-center mb-6 text-slate-900 dark:text-slate-100" }, "🎯 Planificador de Metas"),
                 React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6" },
                     React.createElement(InputGroup, { label: "Monto Inicial" },
                         React.createElement('input', { type: "number", value: initial, onChange: (e) => setInitial(e.target.value), placeholder: "Ej: 1000", className: "w-full" })
@@ -788,7 +788,7 @@ const HistoryTab = ({ history, clearHistory, loadFromHistory }) => {
         React.createElement('div', { id: "history-tab" },
             React.createElement(Card, null,
                 React.createElement('div', { className: "flex justify-between items-center mb-6" },
-                    React.createElement('h2', { className: "text-2xl font-bold" }, "📜 Historial de Cálculos"),
+                    React.createElement('h2', { className: "text-2xl font-bold text-slate-900 dark:text-slate-100" }, "📜 Historial de Cálculos"),
                     history.length > 0 && (
                         React.createElement('button', {
                             onClick: clearHistory,
