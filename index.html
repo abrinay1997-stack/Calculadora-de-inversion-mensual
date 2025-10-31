@@ -1,1296 +1,915 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Inversion</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora de Inversión Avanzada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
-        :root {
-            --bg-dark: #0A0E17;
-            --bg-gradient: linear-gradient(135deg, #0A0E17 0%, #161B2E 100%);
-            --card-bg: #1A1F35;
-            --card-hover: #202642;
-            --border-color: #2D3548;
-            --primary-green: #00FFA3;
-            --primary-green-darker: #00D186;
-            --secondary-blue: #3B82F6;
-            --text-light: #F1F5F9;
-            --text-muted: #94A3B8;
-            --shadow-glow: 0 0 30px rgba(0, 255, 163, 0.15);
-            --accent-purple: #A855F7;
-            --warning-orange: #FB923C;
-        }
-
-        [data-theme="light"] {
-            --bg-dark: #F8FAFC;
-            --bg-gradient: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
-            --card-bg: #FFFFFF;
-            --card-hover: #F1F5F9;
-            --border-color: #E2E8F0;
-            --text-light: #0F172A;
-            --text-muted: #64748B;
-            --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-light);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px 10px;
-            transition: all 0.3s ease;
-        }
-
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            position: relative;
-        }
-
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 50px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 1.2em;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            border-color: var(--primary-green);
-        }
-
-        header h1 {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-            font-size: 2.5em;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        header .subtitle {
-            color: var(--text-muted);
-            font-size: 1.1em;
-            font-weight: 500;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            background: var(--card-bg);
-            padding: 8px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px 20px;
-            background: transparent;
-            border: none;
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95em;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
-            color: var(--bg-dark);
-        }
-
-        .tab:hover:not(.active) {
-            background: var(--card-hover);
-            color: var(--text-light);
-        }
-
-        .form-card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--text-light);
-            font-size: 0.95em;
-        }
-
-        .tooltip {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            background: var(--border-color);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 18px;
-            font-size: 0.75em;
-            cursor: help;
-            color: var(--text-muted);
-        }
-
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            background: var(--bg-dark);
-            color: var(--text-light);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            white-space: nowrap;
-            z-index: 1000;
-            margin-top: 25px;
-            margin-left: -100px;
-            border: 1px solid var(--border-color);
-        }
-
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid var(--border-color);
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            border-radius: 12px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-        }
-
-        [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(0);
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: var(--primary-green);
-            box-shadow: 0 0 0 4px rgba(0, 255, 163, 0.1);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .checkbox-group label {
-            margin: 0;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        button {
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-        }
-
-        button.primary {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
-            color: var(--bg-dark);
-            box-shadow: 0 4px 20px rgba(0, 255, 163, 0.3);
-        }
-
-        button.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0, 255, 163, 0.4);
-        }
-
-        button.secondary {
-            background: var(--card-bg);
-            color: var(--text-light);
-            border: 2px solid var(--border-color);
-        }
-
-        button.secondary:hover {
-            border-color: var(--primary-green);
-            background: var(--card-hover);
-        }
-
-        #results-container {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        #results-container.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .summary-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .summary-card:hover {
-            background: var(--card-hover);
-            border-color: var(--primary-green);
-            transform: translateY(-4px);
-        }
-
-        .summary-card .label {
-            color: var(--text-muted);
-            font-size: 0.85em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .summary-card .value {
-            color: var(--text-light);
-            font-size: 1.8em;
-            font-weight: 700;
-        }
-
-        .summary-card.highlight .value {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .summary-card .subvalue {
-            color: var(--primary-green);
-            font-size: 0.9em;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-
-        .chart-container {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 24px;
-            margin-bottom: 24px;
-            height: 400px;
-        }
-
-        .view-toggle {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 16px;
-        }
-
-        .view-toggle button {
-            padding: 10px 20px;
-            font-size: 0.9em;
-        }
-
-        .results-table-wrapper {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .results-table-wrapper::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .results-table-wrapper::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-
-        .results-table-wrapper::-webkit-scrollbar-thumb {
-            background: var(--primary-green);
-            border-radius: 4px;
-        }
-
-        #results-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        #results-table thead {
-            background: var(--bg-dark);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        #results-table th {
-            padding: 16px 12px;
-            text-align: left;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-size: 0.75em;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        #results-table td {
-            padding: 14px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9em;
-        }
-
-        #results-table tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
-        #results-table tbody tr:hover {
-            background-color: rgba(0, 255, 163, 0.05);
-        }
-
-        .currency {
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .earnings {
-            color: var(--primary-green);
-            font-weight: 600;
-        }
-
-        .withdrawal {
-            color: var(--warning-orange);
-            font-weight: 600;
-        }
-
-        .total {
-            font-weight: 700;
-            color: var(--secondary-blue);
-        }
-
-        .period-cell {
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .date-cell {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85em;
-        }
-
-        .goal-calculator {
-            background: var(--card-bg);
-            border: 2px solid var(--primary-green);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .goal-result {
-            text-align: center;
-            padding: 20px;
-            background: var(--bg-dark);
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-
-        .goal-result .big-number {
-            font-size: 3em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .history-item {
-            background: var(--bg-dark);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover {
-            border-color: var(--primary-green);
-            transform: translateX(4px);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Modal de donación */
-        .donate-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .donate-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .donate-content {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            border: 2px solid var(--primary-green);
-            box-shadow: var(--shadow-glow);
-            position: relative;
-        }
-
-        .donate-content h3 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--text-light);
-            font-size: 1.5em;
-        }
-
-        .donate-address {
-            background: var(--bg-dark);
-            padding: 15px;
-            border-radius: 12px;
-            margin: 20px 0;
-            font-family: monospace;
-            word-break: break-all;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            color: var(--primary-green);
-            font-weight: 600;
-        }
-
-        .donate-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .donate-buttons button {
-            flex: 1;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            color: var(--text-muted);
-            font-size: 0.85em;
-            padding: 20px;
-        }
-
-        .donate-footer {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        @media screen and (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-
-            .theme-toggle {
-                position: relative;
-                top: 0;
-                right: 0;
-                margin-bottom: 16px;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-container {
-                height: 300px;
-            }
-
-            #results-table th:nth-child(3),
-            #results-table td:nth-child(3) {
-                display: none;
-            }
-
-            .donate-buttons {
-                flex-direction: column;
-            }
-        }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Esta regla aplica el modo oscuro al popup nativo del calendario */
+      html.dark input[type="date"] {
+        color-scheme: dark;
+      }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.552.0"
+  }
+}
+</script>
 </head>
-<body>
-    <div class="app-container">
-        <header>
-            <button class="theme-toggle" id="themeToggle">🌙</button>
-            <h1>💎 CALCULA TU INVERSIÓN MENSUAL</h1>
-            <p class="subtitle">Herramienta para proyectar tus inversiones Bitnest</p>
-        </header>
+<body class="bg-slate-50 dark:bg-[#0A0E17]">
+    <div id="root"></div>
+    <script type="module">
+// <![CDATA[
+import React, { useState, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom/client';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Sun, Moon, Calculator, Target, History, Plus, Trash2, HelpCircle, Copy, BarChart3, Eraser, Check, List, Clipboard } from 'lucide-react';
 
-        <div class="tabs">
-            <button class="tab active" data-tab="calculator">📊 Calculadora</button>
-            <button class="tab" data-tab="goal">🎯 Alcanzar Meta</button>
-            <button class="tab" data-tab="history">📜 Historial</button>
-        </div>
+// --- Inlined from utils/formatters.ts ---
+const formatCurrency = (value, minFractionDigits = 2) => {
+    return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN',
+        minimumFractionDigits: minFractionDigits,
+        maximumFractionDigits: 2,
+    }).format(value);
+};
 
-        <main>
-            <!-- CALCULADORA PRINCIPAL -->
-            <div id="calculator-tab" class="tab-content">
-                <div class="form-card">
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label>
-                                💰 Monto Inicial
-                                <span class="tooltip" data-tooltip="Cantidad con la que inicias tu inversión">?</span>
-                            </label>
-                            <input type="number" id="initialAmount" placeholder="Ej: 1000" min="1">
-                        </div>
+const formatDate = (dateString) => {
+    const date = new Date(dateString.includes('T') ? dateString : dateString + 'T00:00:00');
+    return new Intl.DateTimeFormat('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(date);
+};
 
-                        <div class="input-group">
-                            <label>
-                                📅 Fecha de Inicio
-                                <span class="tooltip" data-tooltip="Cuándo comienza tu inversión">?</span>
-                            </label>
-                            <input type="date" id="startDate">
-                        </div>
+// --- Inlined from hooks/useLocalStorage.ts ---
+function useLocalStorage(key, initialValue) {
+    const [storedValue, setStoredValue] = useState(() => {
+        try {
+            const item = window.localStorage.getItem(key);
+            return item ? JSON.parse(item) : initialValue;
+        } catch (error) {
+            console.error(error);
+            return initialValue;
+        }
+    });
 
-                        <div class="input-group">
-                            <label>
-                                📊 Períodos
-                                <span class="tooltip" data-tooltip="Cada período son 28 días">?</span>
-                            </label>
-                            <select id="duration">
-                                <option value="6">6 Períodos (~6 meses)</option>
-                                <option value="12" selected>12 Períodos (~1 año)</option>
-                                <option value="18">18 Períodos (~1.5 años)</option>
-                                <option value="24">24 Períodos (~2 años)</option>
-                            </select>
-                        </div>
+    useEffect(() => {
+        try {
+            const valueToStore = JSON.stringify(storedValue);
+            window.localStorage.setItem(key, valueToStore);
+        } catch (error) {
+            console.error(error);
+        }
+    }, [key, storedValue]);
 
-                        <div class="input-group">
-                            <label>
-                                ➕ Aporte Mensual
-                                <span class="tooltip" data-tooltip="Cantidad adicional que agregas cada período">?</span>
-                            </label>
-                            <input type="number" id="monthlyContribution" placeholder="Ej: 100" min="0" value="0">
-                        </div>
+    return [storedValue, setStoredValue];
+}
 
-                        <div class="input-group">
-                            <label>
-                                💸 % de Retiro
-                                <span class="tooltip" data-tooltip="Porcentaje de ganancias que retiras cada período">?</span>
-                            </label>
-                            <input type="number" id="withdrawalPercent" placeholder="Ej: 50" min="0" max="100" value="0">
-                        </div>
-                    </div>
 
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="considerTaxes">
-                        <label for="considerTaxes">Considerar un 10% de comiciones sobre ganancias. (Un aproximado por intercambios y retiros)
-</label>
-                    </div>
+// --- Inlined from components/shared/Card.tsx ---
+const Card = ({ children, className = '' }) => {
+    return (
+        React.createElement('div', { className: `bg-white dark:bg-[#1A1F35] p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-[#2D3548] shadow-lg shadow-slate-500/5 dark:shadow-emerald-500/5 ${className}` },
+            children
+        )
+    );
+};
 
-                    <div class="button-group">
-                        <button class="primary" id="calculateBtn">Calcular Proyección</button>
-                        <button class="secondary" id="copyResultsBtn">📋 Copiar Resultados</button>
-                    </div>
-                </div>
-
-                <div id="results-container"></div>
-            </div>
-
-            <!-- CALCULADORA DE META -->
-            <div id="goal-tab" class="tab-content hidden">
-                <div class="goal-calculator">
-                    <h2 style="margin-bottom: 24px; text-align: center;">🎯 ¿Cuánto tiempo necesitas?</h2>
-                    
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label>💰 Monto Inicial</label>
-                            <input type="number" id="goalInitial" placeholder="Ej: 1000" min="1">
-                        </div>
-
-                        <div class="input-group">
-                            <label>🎯 Meta Deseada</label>
-                            <input type="number" id="goalTarget" placeholder="Ej: 10000" min="1">
-                        </div>
-
-                        <div class="input-group">
-                            <label>➕ Aporte por Período</label>
-                            <input type="number" id="goalContribution" placeholder="Ej: 100" min="0" value="0">
-                        </div>
-                    </div>
-
-                    <button class="primary" id="calculateGoalBtn" style="width: 100%; margin-top: 16px;">
-                        Calcular Tiempo Necesario
-                    </button>
-
-                    <div id="goalResult" class="goal-result hidden">
-                        <div class="label">Necesitas aproximadamente:</div>
-                        <div class="big-number" id="periodsNeeded">0</div>
-                        <div class="label">períodos (cada 28 días)</div>
-                        <div style="margin-top: 16px; color: var(--text-muted);">
-                            Equivalente a <strong id="monthsNeeded">0</strong> meses
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HISTORIAL -->
-            <div id="history-tab" class="tab-content hidden">
-                <div class="form-card">
-                    <h2 style="margin-bottom: 24px; text-align: center;">📜 Historial de Cálculos</h2>
-                    <div id="historyList"></div>
-                    <button class="secondary" id="clearHistory" style="width: 100%; margin-top: 16px;">
-                        🗑️ Limpiar Historial
-                    </button>
-                </div>
-            </div>
-        </main>
-        
-        <footer>
-            <div class="donate-footer">
-                <button class="secondary" id="donateBtn" style="width: 200px;">💖</button>
-            </div>
-            <p>🧠Regla de oro: nunca inviertas dinero que necesites para vivir..</p>
-        </footer>
-    </div>
-
-    <!-- Modal de Donación -->
-    <div class="donate-modal" id="donateModal">
-        <div class="donate-content">
-            <h3>Donaciones BNB | BEP20</h3>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 20px;">
-
-                IG: @Abrinay_
-
-            </p>
-            <div class="donate-address" id="donateAddress">
-                0x2198017F4De50375847cdC48848A21F677714ecb
-            </div>
-            <div class="donate-buttons">
-                <button class="secondary" id="copyAddressBtn">📋 Copiar Dirección</button>
-                <button class="primary" id="closeDonateModal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let myChart = null;
-        let currentCalculation = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Referencias
-            const initialAmountInput = document.getElementById('initialAmount');
-            const startDateInput = document.getElementById('startDate');
-            const durationSelect = document.getElementById('duration');
-            const monthlyContributionInput = document.getElementById('monthlyContribution');
-            const withdrawalPercentInput = document.getElementById('withdrawalPercent');
-            const considerTaxesCheckbox = document.getElementById('considerTaxes');
-            const calculateBtn = document.getElementById('calculateBtn');
-            const copyResultsBtn = document.getElementById('copyResultsBtn');
-            const resultsContainer = document.getElementById('results-container');
-            const themeToggle = document.getElementById('themeToggle');
-            
-            // Tabs
-            const tabs = document.querySelectorAll('.tab');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            // Goal calculator
-            const goalInitialInput = document.getElementById('goalInitial');
-            const goalTargetInput = document.getElementById('goalTarget');
-            const goalContributionInput = document.getElementById('goalContribution');
-            const calculateGoalBtn = document.getElementById('calculateGoalBtn');
-            const goalResult = document.getElementById('goalResult');
-            
-            // History
-            const historyList = document.getElementById('historyList');
-            const clearHistoryBtn = document.getElementById('clearHistory');
-            
-            // Donación
-            const donateBtn = document.getElementById('donateBtn');
-            const donateModal = document.getElementById('donateModal');
-            const copyAddressBtn = document.getElementById('copyAddressBtn');
-            const closeDonateModal = document.getElementById('closeDonateModal');
-            
-            startDateInput.value = new Date().toISOString().split('T')[0];
-
-            // Theme toggle
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                themeToggle.textContent = newTheme === 'light' ? '☀️' : '🌙';
-                localStorage.setItem('theme', newTheme);
-                
-                if (myChart) {
-                    updateChartTheme();
-                }
-            });
-
-            // Load saved theme
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            themeToggle.textContent = savedTheme === 'light' ? '☀️' : '🌙';
-
-            // Tabs
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    const tabName = tab.getAttribute('data-tab');
-                    tabContents.forEach(content => {
-                        content.classList.add('hidden');
+// --- Inlined from components/shared/InputGroup.tsx ---
+const InputGroup = ({ label, tooltip, children }) => {
+    return (
+        React.createElement('div', { className: "space-y-2" },
+            React.createElement('label', { className: "text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5" },
+                label,
+                tooltip && (
+                    React.createElement('span', { className: "group relative" },
+                        React.createElement(HelpCircle, { size: 16, className: "text-slate-400 cursor-help" }),
+                        React.createElement('span', { className: "absolute bottom-full mb-2 w-52 bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none left-1/2 -translate-x-1/2" },
+                            tooltip
+                        )
+                    )
+                )
+            ),
+            React.Children.map(children, child => {
+                if (React.isValidElement(child)) {
+                    return React.cloneElement(child, {
+                        className: `${child.props.className || ''} bg-slate-100 dark:bg-[#0A0E17] border-2 border-slate-200 dark:border-slate-700 rounded-lg p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition`
                     });
-                    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
-                    
-                    if (tabName === 'history') {
-                        loadHistory();
-                    }
-                });
-            });
-
-            // Donación
-            donateBtn.addEventListener('click', () => {
-                donateModal.classList.add('active');
-            });
-
-            copyAddressBtn.addEventListener('click', () => {
-                const address = document.getElementById('donateAddress').textContent;
-                navigator.clipboard.writeText(address);
-                alert('Dirección copiada al portapapeles');
-            });
-
-            closeDonateModal.addEventListener('click', () => {
-                donateModal.classList.remove('active');
-            });
-
-            donateModal.addEventListener('click', (e) => {
-                if (e.target === donateModal) {
-                    donateModal.classList.remove('active');
                 }
-            });
+                return child;
+            })
+        )
+    );
+};
 
-            calculateBtn.addEventListener('click', () => {
-                const initialAmount = parseFloat(initialAmountInput.value);
-                const startDateValue = startDateInput.value;
-                const duration = parseInt(durationSelect.value);
-                const monthlyContribution = parseFloat(monthlyContributionInput.value) || 0;
-                const withdrawalPercent = parseFloat(withdrawalPercentInput.value) || 0;
-                const considerTaxes = considerTaxesCheckbox.checked;
+// --- Inlined from components/results/SummaryCard.tsx ---
+const SummaryCard = ({ label, value, subValue, highlight = false }) => {
+    return (
+        React.createElement('div', { className: "bg-slate-100 dark:bg-[#0A0E17] p-4 rounded-lg text-center border border-slate-200 dark:border-slate-700" },
+            React.createElement('p', { className: "text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider" }, label),
+            React.createElement('p', { className: `text-2xl md:text-3xl font-bold my-1 ${highlight ? 'bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500' : 'text-slate-800 dark:text-slate-100'}` },
+                formatCurrency(value)
+            ),
+            subValue && React.createElement('p', { className: `text-xs font-semibold ${highlight ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-500'}` }, subValue)
+        )
+    );
+};
 
-                if (isNaN(initialAmount) || initialAmount <= 0) {
-                    alert('Por favor, introduce un monto inicial válido.');
-                    initialAmountInput.focus();
-                    return;
-                }
-                
-                if (!startDateValue) {
-                    alert('Por favor, selecciona una fecha de inicio.');
-                    startDateInput.focus();
-                    return;
-                }
+// --- Inlined from components/results/InvestmentChart.tsx ---
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        const principal = payload.find((p) => p.dataKey === 'principal')?.value || 0;
+        const earnings = payload.find((p) => p.dataKey === 'earnings')?.value || 0;
+        const total = principal + earnings;
+        return (
+            React.createElement('div', { className: "bg-white dark:bg-[#1A1F35] p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-lg text-sm" },
+                React.createElement('p', { className: "label font-semibold text-slate-800 dark:text-slate-200 mb-2" }, `${label}`),
+                React.createElement('p', { className: "intro text-slate-600 dark:text-slate-300 flex items-center" },
+                    React.createElement('span', { className: "inline-block w-3 h-3 rounded-full bg-[#3B82F6] mr-2" }),
+                    `Capital: ${formatCurrency(principal)}`
+                ),
+                React.createElement('p', { className: "intro text-slate-600 dark:text-slate-300 flex items-center" },
+                    React.createElement('span', { className: "inline-block w-3 h-3 rounded-full bg-[#00FFA3] mr-2" }),
+                    `Ganancias: ${formatCurrency(earnings)}`
+                ),
+                React.createElement('hr', { className: "my-2 border-slate-200 dark:border-slate-700" }),
+                React.createElement('p', { className: "font-bold text-slate-800 dark:text-slate-200" },
+                    `Total: ${formatCurrency(total)}`
+                )
+            )
+        );
+    }
+    return null;
+};
 
-                calculateAndDisplayResults(initialAmount, startDateValue, duration, monthlyContribution, withdrawalPercent, considerTaxes);
-            });
+const InvestmentChart = ({ data }) => {
+    // const [theme] = useLocalStorage('theme', 'dark'); // Ya no es necesario, siempre es 'dark'
+    const isDark = true; // Forzado a dark
 
-            // Copy results
-            copyResultsBtn.addEventListener('click', () => {
-                if (!currentCalculation) {
-                    alert('Primero realiza un cálculo para poder copiar los resultados.');
-                    return;
-                }
-                
-                copyResultsToClipboard();
-            });
+    return (
+        React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+            React.createElement(AreaChart, {
+                data: data,
+                margin: { top: 5, right: 20, left: 20, bottom: 5 }
+            },
+                React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: isDark ? '#2D3548' : '#e2e8f0' }),
+                React.createElement(XAxis, { dataKey: "name", stroke: isDark ? '#94A3B8' : '#64748B', tick: { fontSize: 12 } }),
+                React.createElement(YAxis, {
+                    stroke: isDark ? '#94A3B8' : '#64748B',
+                    tickFormatter: (value) => formatCurrency(value, 0),
+                    tick: { fontSize: 12 },
+                    width: 80
+                }),
+                React.createElement(Tooltip, { content: React.createElement(CustomTooltip) }),
+                React.createElement(Legend, { wrapperStyle: { fontSize: '14px' } }),
+                React.createElement(Area, { type: "monotone", dataKey: "principal", stackId: "1", stroke: "#3B82F6", fill: "#3B82F6", fillOpacity: 0.6, name: "Capital Total" }),
+                React.createElement(Area, { type: "monotone", dataKey: "earnings", stackId: "1", stroke: "#00FFA3", fill: "#00FFA3", fillOpacity: 0.6, name: "Ganancias Totales" })
+            )
+        )
+    );
+};
 
-            // Goal calculator
-            calculateGoalBtn.addEventListener('click', () => {
-                const initial = parseFloat(goalInitialInput.value);
-                const target = parseFloat(goalTargetInput.value);
-                const contribution = parseFloat(goalContributionInput.value) || 0;
+// --- Inlined from components/results/InvestmentTable.tsx ---
+const InvestmentTable = ({ periods }) => {
+    return (
+        React.createElement('div', { className: "h-full w-full overflow-auto" },
+            React.createElement('table', { className: "w-full text-sm text-left text-slate-500 dark:text-slate-400" },
+                React.createElement('thead', { className: "text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-400 sticky top-0" },
+                    React.createElement('tr', null,
+                        React.createElement('th', { scope: "col", className: "px-4 py-3" }, "Período"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3" }, "Fecha"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3 text-right" }, "Inicio"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3 text-right" }, "Aporte"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3 text-right" }, "Ganancia"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3 text-right" }, "Comisión"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3 text-right" }, "Retiro"),
+                        React.createElement('th', { scope: "col", className: "px-4 py-3 text-right" }, "Final")
+                    )
+                ),
+                React.createElement('tbody', null,
+                    periods.map((p) => (
+                        React.createElement('tr', { key: p.period, className: "bg-white dark:bg-[#1A1F35] border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50" },
+                            React.createElement('td', { className: "px-4 py-3 font-medium text-slate-900 dark:text-white" }, p.period),
+                            React.createElement('td', { className: "px-4 py-3" }, formatDate(p.date)),
+                            React.createElement('td', { className: "px-4 py-3 text-right" }, formatCurrency(p.initialCapital)),
+                            React.createElement('td', { className: "px-4 py-3 text-right text-sky-500" }, p.contribution > 0 ? `+${formatCurrency(p.contribution)}` : '-'),
+                            React.createElement('td', { className: "px-4 py-3 text-right text-emerald-500" }, `+${formatCurrency(p.earnings)}`),
+                            React.createElement('td', { className: "px-4 py-3 text-right text-orange-500" }, p.taxes > 0 ? `-${formatCurrency(p.taxes)}` : '-'),
+                            React.createElement('td', { className: "px-4 py-3 text-right text-orange-500" }, p.withdrawal > 0 ? `-${formatCurrency(p.withdrawal)}` : '-'),
+                            React.createElement('td', { className: "px-4 py-3 text-right font-semibold text-slate-900 dark:text-white" }, formatCurrency(p.finalCapital))
+                        )
+                    ))
+                )
+            )
+        )
+    );
+};
 
-                if (isNaN(initial) || initial <= 0 || isNaN(target) || target <= initial) {
-                    alert('Por favor, introduce valores válidos. La meta debe ser mayor al monto inicial.');
-                    return;
-                }
+// --- Inlined from components/results/ResultsDisplay.tsx ---
+const ResultsDisplay = ({ results }) => {
+    const [view, setView] = useState('chart');
+    const [isCopied, setIsCopied] = useState(false);
 
-                calculateGoal(initial, target, contribution);
-            });
-
-            // Clear history
-            clearHistoryBtn.addEventListener('click', () => {
-                if (confirm('¿Estás seguro de que quieres borrar todo el historial?')) {
-                    localStorage.removeItem('calculationHistory');
-                    loadHistory();
-                }
-            });
-
-            function calculateAndDisplayResults(initialAmount, startDateValue, duration, monthlyContribution, withdrawalPercent, considerTaxes) {
-                const INTEREST_RATE = 0.24;
-                const DAYS_PER_PERIOD = 28;
-                const TAX_RATE = considerTaxes ? 0.10 : 0;
-                
-                let currentCapital = initialAmount;
-                let tableRowsHTML = '';
-                let totalEarnings = 0;
-                let totalWithdrawals = 0;
-                let totalTaxes = 0;
-                let totalContributions = 0;
-                
-                const chartLabels = [];
-                const chartData = [];
-                
-                const paymentDate = new Date(startDateValue + 'T00:00:00');
-                const calculations = [];
-
-                for (let period = 1; period <= duration; period++) {
-                    const initialCapitalForPeriod = currentCapital;
-                    let earnings = initialCapitalForPeriod * INTEREST_RATE;
-                    
-                    // Impuestos
-                    const taxes = earnings * TAX_RATE;
-                    totalTaxes += taxes;
-                    earnings -= taxes;
-                    
-                    // Retiros
-                    const withdrawal = earnings * (withdrawalPercent / 100);
-                    totalWithdrawals += withdrawal;
-                    
-                    // Capital final
-                    const earningsReinvested = earnings - withdrawal;
-                    totalEarnings += earnings;
-                    
-                    // Agregar contribución
-                    totalContributions += monthlyContribution;
-                    currentCapital = initialCapitalForPeriod + earningsReinvested + monthlyContribution;
-                    
-                    paymentDate.setDate(paymentDate.getDate() + DAYS_PER_PERIOD);
-                    
-                    calculations.push({
-                        period,
-                        date: new Date(paymentDate),
-                        initialCapital: initialCapitalForPeriod,
-                        earnings,
-                        withdrawal,
-                        taxes,
-                        contribution: monthlyContribution,
-                        finalCapital: currentCapital
-                    });
-                    
-                    chartLabels.push(`P${period}`);
-                    chartData.push(currentCapital.toFixed(2));
-                    
-                    tableRowsHTML += `
-                        <tr>
-                            <td class="period-cell">${period}</td>
-                            <td class="date-cell">${formatDate(paymentDate)}</td>
-                            <td class="currency">${formatCurrency(initialCapitalForPeriod)}</td>
-                            <td class="currency earnings">+${formatCurrency(earnings)}</td>
-                            ${withdrawal > 0 ? `<td class="currency withdrawal">-${formatCurrency(withdrawal)}</td>` : '<td class="currency">-</td>'}
-                            ${monthlyContribution > 0 ? `<td class="currency earnings">+${formatCurrency(monthlyContribution)}</td>` : '<td class="currency">-</td>'}
-                            <td class="currency total">${formatCurrency(currentCapital)}</td>
-                        </tr>
-                    `;
-                }
-
-                const roi = ((currentCapital - initialAmount - totalContributions) / initialAmount * 100).toFixed(2);
-
-                currentCalculation = {
-                    initialAmount,
-                    finalAmount: currentCapital,
-                    roi,
-                    duration,
-                    totalEarnings,
-                    totalWithdrawals,
-                    totalTaxes,
-                    totalContributions,
-                    calculations,
-                    chartLabels,
-                    chartData
-                };
-
-                saveToHistory(currentCalculation);
-
-                const resultsHTML = `
-                    <div class="summary-cards">
-                        <div class="summary-card">
-                            <div class="label">Inversión Total</div>
-                            <div class="value">${formatCurrency(initialAmount + totalContributions)}</div>
-                            <div class="subvalue">Inicial + Aportes</div>
-                        </div>
-                        <div class="summary-card highlight">
-                            <div class="label">Capital Final</div>
-                            <div class="value">${formatCurrency(currentCapital)}</div>
-                            <div class="subvalue">+${roi}% ROI</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="label">Ganancias Netas</div>
-                            <div class="value">${formatCurrency(totalEarnings)}</div>
-                            ${considerTaxes ? `<div class="subvalue">Impuestos: ${formatCurrency(totalTaxes)}</div>` : ''}
-                        </div>
-                        <div class="summary-card">
-                            <div class="label">Retiros Totales</div>
-                            <div class="value">${formatCurrency(totalWithdrawals)}</div>
-                        </div>
-                    </div>
-
-                    <div class="view-toggle">
-                        <button class="secondary active" id="showChart">📈 Gráfica</button>
-                        <button class="secondary" id="showTable">📋 Tabla</button>
-                    </div>
-
-                    <div class="chart-container" id="chartContainer">
-                        <canvas id="investmentChart"></canvas>
-                    </div>
-
-                    <div class="results-table-wrapper hidden" id="tableContainer">
-                        <table id="results-table">
-                            <thead>
-                                <tr>
-                                    <th class="period-cell">Período</th>
-                                    <th class="date-cell">Fecha</th>
-                                    <th class="currency">Capital Inicial</th>
-                                    <th class="currency">Ganancia</th>
-                                    <th class="currency">Retiro</th>
-                                    <th class="currency">Aporte</th>
-                                    <th class="currency">Capital Final</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${tableRowsHTML}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                
-                resultsContainer.innerHTML = resultsHTML;
-                resultsContainer.classList.add('visible');
-
-                // Toggle entre gráfica y tabla
-                document.getElementById('showChart').addEventListener('click', function() {
-                    document.getElementById('chartContainer').classList.remove('hidden');
-                    document.getElementById('tableContainer').classList.add('hidden');
-                    this.classList.add('active');
-                    document.getElementById('showTable').classList.remove('active');
-                });
-
-                document.getElementById('showTable').addEventListener('click', function() {
-                    document.getElementById('chartContainer').classList.add('hidden');
-                    document.getElementById('tableContainer').classList.remove('hidden');
-                    this.classList.add('active');
-                    document.getElementById('showChart').classList.remove('active');
-                });
-
-                // Crear gráfica
-                createChart(chartLabels, chartData);
+    const handleExport = () => {
+        const { params, periods, finalCapital, roi, totalContributions, totalEarnings, totalTaxes, totalWithdrawals } = results;
+        const formatLine = (label, value) => `${label}: ${value}`;
+        let exportString = `📊 *Resumen de Proyección de Inversión*\n\n`;
+        exportString += `*Parámetros Iniciales*\n`;
+        exportString += `${formatLine('💰 Monto Inicial', formatCurrency(params.initialAmount))}\n`;
+        exportString += `${formatLine('📅 Fecha de Inicio', formatDate(params.startDate))}\n`;
+        exportString += `${formatLine('⏳ Duración', `${params.duration} períodos`)}\n`;
+        if (params.withdrawalPercent > 0) {
+            exportString += `${formatLine('💸 % de Retiro', `${params.withdrawalPercent}%`)}\n`;
+            if (params.withdrawalStartDate) {
+                exportString += `${formatLine('🗓️ Inicio Retiros', formatDate(params.withdrawalStartDate))}\n`;
             }
+        }
+        if (params.contributions.length > 0) {
+            exportString += `\n*Aportes Adicionales:*\n`;
+            params.contributions.forEach(c => {
+                exportString += `  - ${formatCurrency(c.amount)} el ${formatDate(c.date)}\n`;
+            });
+        }
+        exportString += `\n`;
+        exportString += `*Resultados de la Proyección*\n`;
+        exportString += `${formatLine('🏦 Capital Final', formatCurrency(finalCapital))}\n`;
+        exportString += `${formatLine('📈 ROI', `${roi.toFixed(2)}%`)}\n`;
+        exportString += `${formatLine('💸 Total Invertido', formatCurrency(params.initialAmount + totalContributions))}\n`;
+        exportString += `${formatLine('💹 Ganancias Netas', formatCurrency(totalEarnings - totalTaxes))}\n`;
+        exportString += `${formatLine('🏧 Retiros Totales', formatCurrency(totalWithdrawals))}\n`;
+        exportString += `\n`;
+        exportString += `*Detalle por Período*\n`;
+        exportString += `--------------------------------\n`;
+        periods.forEach(p => {
+            exportString += `*Período ${p.period}* (${formatDate(p.date)})\n`;
+            exportString += `  Inicio: ${formatCurrency(p.initialCapital)}\n`;
+            if (p.contribution > 0) exportString += `  Aporte: +${formatCurrency(p.contribution)}\n`;
+            exportString += `  Ganancia: +${formatCurrency(p.earnings)}\n`;
+            if (p.taxes > 0) exportString += `  Comisión: -${formatCurrency(p.taxes)}\n`;
+            if (p.withdrawal > 0) exportString += `  Retiro: -${formatCurrency(p.withdrawal)}\n`;
+            exportString += `  *Final: ${formatCurrency(p.finalCapital)}*\n`;
+            exportString += `--------------------------------\n`;
+        });
+        navigator.clipboard.writeText(exportString.trim()).then(() => {
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2500);
+        });
+    };
 
-            function createChart(labels, data) {
-                const ctx = document.getElementById('investmentChart').getContext('2d');
-                
-                if (myChart) {
-                    myChart.destroy();
-                }
+    return (
+        React.createElement(Card, { className: "mt-8 transition-all duration-500 ease-in-out" },
+            React.createElement('h2', { className: "text-2xl font-bold text-center mb-6" }, "Resultados de la Proyección"),
+            React.createElement('div', { className: "grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" },
+                React.createElement(SummaryCard, {
+                    label: "Total Invertido",
+                    value: results.initialAmount + results.totalContributions,
+                    subValue: "Inicial + Aportes"
+                }),
+                React.createElement(SummaryCard, {
+                    label: "Capital Final",
+                    value: results.finalCapital,
+                    subValue: `+${results.roi.toFixed(2)}% ROI`,
+                    highlight: true
+                }),
+                React.createElement(SummaryCard, {
+                    label: "Ganancias Netas",
+                    value: results.totalEarnings - results.totalTaxes,
+                    subValue: results.totalTaxes > 0 ? `Comisiones: ${formatCurrency(results.totalTaxes)}` : undefined
+                }),
+                React.createElement(SummaryCard, {
+                    label: "Retiros Totales",
+                    value: results.totalWithdrawals
+                })
+            ),
+            React.createElement('div', { className: "mb-6 text-center" },
+                React.createElement('button', {
+                    onClick: handleExport,
+                    className: "bg-emerald-500/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/20 font-semibold py-2 px-5 rounded-lg transition-all duration-300 flex items-center gap-2 mx-auto"
+                },
+                    isCopied ? React.createElement(Check, { size: 18 }) : React.createElement(Clipboard, { size: 18 }),
+                    isCopied ? '¡Copiado!' : 'Exportar Datos'
+                )
+            ),
+            React.createElement('div', { className: "flex justify-center mb-4" },
+              React.createElement('div', { className: "flex space-x-1 bg-slate-200 dark:bg-[#0A0E17] p-1 rounded-lg" },
+                React.createElement('button', {
+                  onClick: () => setView('chart'),
+                  className: `px-4 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors duration-200 ${
+                    view === 'chart' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'
+                  }`
+                },
+                  React.createElement(BarChart3, { size: 16 }), " Gráfico"
+                ),
+                React.createElement('button', {
+                  onClick: () => setView('table'),
+                  className: `px-4 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 transition-colors duration-200 ${
+                    view === 'table' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'
+                  }`
+                },
+                  React.createElement(List, { size: 16 }), " Tabla"
+                )
+              )
+            ),
+            React.createElement('div', { className: "h-96 w-full" },
+                view === 'chart' ?
+                    React.createElement(InvestmentChart, { data: results.chartData }) :
+                    React.createElement(InvestmentTable, { periods: results.periods })
+            )
+        )
+    );
+};
 
-                const theme = document.documentElement.getAttribute('data-theme');
-                const textColor = theme === 'light' ? '#0F172A' : '#F1F5F9';
-                const gridColor = theme === 'light' ? '#E2E8F0' : '#2D3548';
+// --- Inlined from components/Header.tsx ---
+const Header = () => {
+    // El botón de cambio de tema y la lógica 'toggleTheme' se han eliminado.
+    return (
+        React.createElement('header', { className: "text-center mb-8 md:mb-12 relative" },
+            // El botón de cambio de tema ha sido eliminado
+            React.createElement('h1', { className: "text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500 mb-2" },
+                "Calculadora de Inversión Avanzada"
+            ),
+            React.createElement('p', { className: "text-md md:text-lg text-slate-600 dark:text-slate-400" },
+                "Proyecta tus inversiones con aportes flexibles."
+            )
+        )
+    );
+};
 
-                myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Capital Acumulado',
-                            data: data,
-                            borderColor: '#00FFA3',
-                            backgroundColor: 'rgba(0, 255, 163, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
+// --- Inlined from components/Tabs.tsx ---
+const tabConfig = [
+    { id: 'calculator', label: 'Calculadora', icon: React.createElement(Calculator, { size: 18 }) },
+    { id: 'goal', label: 'Planificador de Metas', icon: React.createElement(Target, { size: 18 }) },
+    { id: 'history', label: 'Historial', icon: React.createElement(History, { size: 18 }) },
+];
+
+const Tabs = ({ activeTab, setActiveTab }) => {
+    return (
+        React.createElement('div', { className: "flex justify-center mb-6 md:mb-8" },
+            React.createElement('div', { className: "flex space-x-2 bg-slate-200 dark:bg-[#1A1F35] p-1.5 rounded-xl border border-transparent dark:border-slate-700" },
+                tabConfig.map((tab) => (
+                    React.createElement('button', {
+                        key: tab.id,
+                        onClick: () => setActiveTab(tab.id),
+                        className: `px-4 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors duration-300 ${
+                            activeTab === tab.id
+                                ? 'bg-white dark:bg-gradient-to-r dark:from-emerald-500 dark:to-blue-500 text-slate-800 dark:text-white shadow'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-300/60 dark:hover:bg-slate-600/90'
+                        }`
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: textColor,
-                                    font: {
-                                        family: 'Inter',
-                                        size: 12
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: theme === 'light' ? '#FFFFFF' : '#1A1F35',
-                                titleColor: textColor,
-                                bodyColor: textColor,
-                                borderColor: gridColor,
-                                borderWidth: 1,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                ticks: {
-                                    color: textColor,
-                                    callback: function(value) {
-                                        return formatCurrency(value);
-                                    }
-                                },
-                                grid: {
-                                    color: gridColor
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: textColor
-                                },
-                                grid: {
-                                    color: gridColor
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+                        tab.icon,
+                        React.createElement('span', { className: "hidden sm:inline" }, tab.label)
+                    )
+                ))
+            )
+        )
+    );
+};
 
-            function updateChartTheme() {
-                if (!myChart) return;
-                
-                const theme = document.documentElement.getAttribute('data-theme');
-                const textColor = theme === 'light' ? '#0F172A' : '#F1F5F9';
-                const gridColor = theme === 'light' ? '#E2E8F0' : '#2D3548';
+// --- Inlined from components/DonationModal.tsx ---
+const DonationModal = ({ isOpen, onClose }) => {
+    const [copied, setCopied] = useState(false);
+    const donationAddress = '0x2198017F4De50375847cdC48848A21F677714ecb';
 
-                myChart.options.plugins.legend.labels.color = textColor;
-                myChart.options.plugins.tooltip.backgroundColor = theme === 'light' ? '#FFFFFF' : '#1A1F35';
-                myChart.options.plugins.tooltip.titleColor = textColor;
-                myChart.options.plugins.tooltip.bodyColor = textColor;
-                myChart.options.plugins.tooltip.borderColor = gridColor;
-                myChart.options.scales.y.ticks.color = textColor;
-                myChart.options.scales.y.grid.color = gridColor;
-                myChart.options.scales.x.ticks.color = textColor;
-                myChart.options.scales.x.grid.color = gridColor;
-                
-                myChart.update();
-            }
+    if (!isOpen) return null;
 
-            function calculateGoal(initial, target, contribution) {
-                const INTEREST_RATE = 0.24;
-                let capital = initial;
-                let periods = 0;
-                const maxPeriods = 100; // Límite de seguridad
+    const handleCopy = () => {
+        navigator.clipboard.writeText(donationAddress);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
-                while (capital < target && periods < maxPeriods) {
-                    periods++;
-                    const earnings = capital * INTEREST_RATE;
-                    capital = capital + earnings + contribution;
+    return (
+        React.createElement('div', {
+            className: "fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4",
+            onClick: onClose
+        },
+            React.createElement('div', {
+                className: "bg-white dark:bg-[#1A1F35] rounded-2xl p-6 md:p-8 max-w-md w-full border-2 border-emerald-500 shadow-2xl shadow-emerald-500/10",
+                onClick: e => e.stopPropagation()
+            },
+                React.createElement('h3', { className: "text-2xl font-bold text-center mb-2" }, "Donaciones BNB | BEP20"),
+                React.createElement('p', { className: "text-center text-slate-500 dark:text-slate-400 mb-6" }, "IG: @Abrinay_"),
+                React.createElement('div', { className: "bg-slate-100 dark:bg-[#0A0E17] p-4 rounded-lg font-mono text-emerald-500 text-center break-all text-sm border border-slate-200 dark:border-slate-700" },
+                    donationAddress
+                ),
+                React.createElement('div', { className: "flex gap-4 mt-6" },
+                    React.createElement('button', {
+                        onClick: handleCopy,
+                        className: "flex-1 w-full justify-center bg-slate-200 dark:bg-[#2D3548] text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-[#2D3548] hover:border-slate-400 dark:hover:border-slate-500 font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center gap-2"
+                    },
+                        copied ? React.createElement(Check, { size: 20, className: "text-emerald-500" }) : React.createElement(Copy, { size: 20 }),
+                        copied ? '¡Copiado!' : 'Copiar Dirección'
+                    ),
+                    React.createElement('button', {
+                        onClick: onClose,
+                        className: "flex-1 w-full justify-center text-white bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
+                    },
+                        "Cerrar"
+                    )
+                )
+            )
+        )
+    );
+};
+
+// --- Inlined from components/CalculatorTab.tsx ---
+const INTEREST_RATE = 0.24; // 24% per period
+const DAYS_PER_PERIOD = 28;
+
+const addDaysToDate = (dateStr, days) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr + 'T00:00:00');
+    date.setDate(date.getDate() + days);
+    return date.toISOString().split('T')[0];
+};
+
+const CalculatorTab = ({ addToHistory, historyToLoad, onHistoryLoaded }) => {
+    const [initialAmount, setInitialAmount] = useState('1000');
+    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [duration, setDuration] = useState(12);
+    const [contributions, setContributions] = useState([
+        { id: crypto.randomUUID(), date: '', amount: '' }
+    ]);
+    const [withdrawalPercent, setWithdrawalPercent] = useState('0');
+    const [withdrawalStartDate, setWithdrawalStartDate] = useState('');
+    const [considerTaxes, setConsiderTaxes] = useState(false);
+    const [results, setResults] = useState(null);
+
+    const minWithdrawalDate = addDaysToDate(startDate, DAYS_PER_PERIOD);
+
+    useEffect(() => {
+        if (!withdrawalStartDate || new Date(withdrawalStartDate) < new Date(minWithdrawalDate)) {
+            setWithdrawalStartDate(minWithdrawalDate);
+        }
+    }, [startDate, minWithdrawalDate]);
+
+    useEffect(() => {
+        if (historyToLoad) {
+            const { params } = historyToLoad;
+            setInitialAmount(params.initialAmount);
+            setStartDate(params.startDate);
+            setDuration(params.duration);
+            setWithdrawalPercent(params.withdrawalPercent);
+            setWithdrawalStartDate(params.withdrawalStartDate || addDaysToDate(params.startDate, DAYS_PER_PERIOD));
+            setConsiderTaxes(params.considerTaxes);
+            setContributions(params.contributions.map(c => ({...c, id: crypto.randomUUID() })));
+            setResults(null);
+            onHistoryLoaded();
+        }
+    }, [historyToLoad, onHistoryLoaded]);
+
+    const handleAddContribution = () => {
+        setContributions([...contributions, { id: crypto.randomUUID(), date: '', amount: '' }]);
+    };
+
+    const handleRemoveContribution = (id) => {
+        setContributions(contributions.filter(c => c.id !== id));
+    };
+
+    const handleContributionChange = (id, field, value) => {
+        setContributions(
+            contributions.map(c => c.id === id ? { ...c, [field]: value } : c)
+        );
+    };
+    
+    const handleReset = () => {
+        const today = new Date().toISOString().split('T')[0];
+        setInitialAmount('1000');
+        setStartDate(today);
+        setDuration(12);
+        setContributions([{ id: crypto.randomUUID(), date: '', amount: '' }]);
+        setWithdrawalPercent('0');
+        setWithdrawalStartDate(addDaysToDate(today, DAYS_PER_PERIOD));
+        setConsiderTaxes(false);
+        setResults(null);
+    }
+
+    const handleCalculate = () => {
+        const initial = parseFloat(initialAmount) || 0;
+        if (initial <= 0) {
+            alert('Por favor, introduce un monto inicial válido.');
+            return;
+        }
+
+        const validContributions = contributions
+            .map(c => ({ date: c.date, amount: parseFloat(c.amount) || 0 }))
+            .filter(c => c.date && c.amount > 0)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        let currentCapital = initial;
+        let totalContributions = 0;
+        let totalWithdrawals = 0;
+        let totalTaxes = 0;
+        let totalEarnings = 0;
+
+        const calculationPeriods = [];
+        const chartData = [{ name: 'Inicio', principal: initial, earnings: 0 }];
+        const taxRate = considerTaxes ? 0.10 : 0;
+        
+        let currentDate = new Date(startDate + 'T00:00:00');
+        const withdrawalStartDateObj = parseFloat(withdrawalPercent) > 0 ? new Date(withdrawalStartDate + 'T00:00:00') : null;
+
+        for (let period = 1; period <= duration; period++) {
+            const periodStartDate = new Date(currentDate);
+            currentDate.setDate(currentDate.getDate() + DAYS_PER_PERIOD);
+            const periodEndDate = new Date(currentDate);
+            const initialCapitalForPeriod = currentCapital;
+
+            let contributionsThisPeriod = 0;
+            validContributions.forEach(c => {
+                const contributionDate = new Date(c.date + 'T00:00:00');
+                if (contributionDate >= periodStartDate && contributionDate < periodEndDate) {
+                    contributionsThisPeriod += c.amount;
                 }
+            });
+            currentCapital += contributionsThisPeriod;
+            totalContributions += contributionsThisPeriod;
 
-                if (periods >= maxPeriods) {
-                    alert('La meta parece muy lejana con los parámetros actuales. Considera aumentar tu aporte o ajustar la meta.');
-                    return;
-                }
+            const earnings = currentCapital * INTEREST_RATE;
+            totalEarnings += earnings;
+            const taxes = earnings * taxRate;
+            totalTaxes += taxes;
+            const netEarnings = earnings - taxes;
 
-                document.getElementById('periodsNeeded').textContent = periods;
-                document.getElementById('monthsNeeded').textContent = Math.round(periods * 0.93);
-                goalResult.classList.remove('hidden');
-            }
+            const applyWithdrawal = withdrawalStartDateObj && periodEndDate >= withdrawalStartDateObj;
+            const withdrawal = applyWithdrawal ? netEarnings * (parseFloat(withdrawalPercent) / 100) : 0;
+            totalWithdrawals += withdrawal;
 
-            function copyResultsToClipboard() {
-                if (!currentCalculation) return;
-                
-                const summaryText = `
-💎 RESUMEN DE INVERSIÓN 💎
+            const reinvested = netEarnings - withdrawal;
+            currentCapital += reinvested;
 
-Inversión Total: ${formatCurrency(currentCalculation.initialAmount + currentCalculation.totalContributions)}
-  • Monto Inicial: ${formatCurrency(currentCalculation.initialAmount)}
-  • Aportes Totales: ${formatCurrency(currentCalculation.totalContributions)}
-
-Capital Final: ${formatCurrency(currentCalculation.finalAmount)}
-ROI: +${currentCalculation.roi}%
-
-Ganancias Netas: ${formatCurrency(currentCalculation.totalEarnings)}
-Retiros Totales: ${formatCurrency(currentCalculation.totalWithdrawals)}
-
-Períodos: ${currentCalculation.duration}
-                `.trim();
-
-                navigator.clipboard.writeText(summaryText)
-                    .then(() => {
-                        alert('✅ Resultados copiados al portapapeles');
-                    })
-                    .catch(err => {
-                        console.error('Error al copiar: ', err);
-                        alert('❌ Error al copiar los resultados');
-                    });
-            }
-
-            function saveToHistory(calculation) {
-                let history = JSON.parse(localStorage.getItem('calculationHistory') || '[]');
-                
-                const historyItem = {
-                    date: new Date().toISOString(),
-                    initialAmount: calculation.initialAmount,
-                    finalAmount: calculation.finalAmount,
-                    roi: calculation.roi,
-                    duration: calculation.duration,
-                    totalContributions: calculation.totalContributions
-                };
-                
-                history.unshift(historyItem);
-                history = history.slice(0, 10); // Mantener solo las últimas 10
-                
-                localStorage.setItem('calculationHistory', JSON.stringify(history));
-            }
-
-            function loadHistory() {
-                const history = JSON.parse(localStorage.getItem('calculationHistory') || '[]');
-                
-                if (history.length === 0) {
-                    historyList.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px;">No hay cálculos guardados aún.</p>';
-                    return;
-                }
-                
-                historyList.innerHTML = history.map((item, index) => `
-                    <div class="history-item">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: 600; color: var(--text-light);">
-                                    ${formatCurrency(item.initialAmount)} → ${formatCurrency(item.finalAmount)}
-                                </div>
-                                <div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">
-                                    ${new Date(item.date).toLocaleDateString('es-ES', { 
-                                        year: 'numeric', 
-                                        month: 'long', 
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="color: var(--primary-green); font-weight: 700;">
-                                    +${item.roi}%
-                                </div>
-                                <div style="font-size: 0.85em; color: var(--text-muted);">
-                                    ${item.duration} períodos
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            function formatCurrency(number) {
-                return new Intl.NumberFormat('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN'
-                }).format(number);
-            }
+            calculationPeriods.push({
+                period,
+                date: periodEndDate.toISOString().split('T')[0],
+                initialCapital: initialCapitalForPeriod,
+                contribution: contributionsThisPeriod,
+                earnings,
+                taxes,
+                withdrawal,
+                finalCapital: currentCapital,
+            });
             
-            function formatDate(date) {
-                return new Intl.DateTimeFormat('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }).format(date);
+            const totalInvested = initial + totalContributions;
+            const totalEarningsAtPeriodEnd = currentCapital - totalInvested;
+            chartData.push({
+                name: `P${period}`,
+                principal: totalInvested,
+                earnings: totalEarningsAtPeriodEnd > 0 ? totalEarningsAtPeriodEnd : 0,
+            });
+        }
+
+        const finalCapital = currentCapital;
+        const totalInvested = initial + totalContributions;
+        const roi = totalInvested > 0 ? ((finalCapital - totalInvested) / totalInvested) * 100 : 0;
+
+        const newResult = {
+            params: {
+                initialAmount: initial,
+                startDate,
+                duration,
+                withdrawalPercent: parseFloat(withdrawalPercent),
+                withdrawalStartDate: parseFloat(withdrawalPercent) > 0 ? withdrawalStartDate : undefined,
+                considerTaxes,
+                contributions: validContributions
+            },
+            periods: calculationPeriods,
+            initialAmount: initial,
+            totalContributions,
+            finalCapital,
+            totalEarnings: totalEarnings,
+            totalWithdrawals,
+            totalTaxes,
+            roi,
+            chartData,
+        };
+        setResults(newResult);
+        
+        addToHistory({
+            id: crypto.randomUUID(),
+            date: new Date().toISOString(),
+            params: {
+                initialAmount,
+                startDate,
+                duration,
+                withdrawalPercent,
+                withdrawalStartDate: parseFloat(withdrawalPercent) > 0 ? withdrawalStartDate : undefined,
+                considerTaxes,
+                contributions: contributions.map(({id, ...rest}) => rest)
+            },
+            result: {
+                finalCapital: newResult.finalCapital,
+                roi: newResult.roi
             }
         });
+    };
+    
+    return (
+        React.createElement('div', { id: "calculator-tab", className: "space-y-6" },
+            React.createElement(Card, null,
+                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+                    React.createElement(InputGroup, { label: "Monto Inicial", tooltip: "La cantidad con la que comienzas tu inversión." },
+                        React.createElement('input', { type: "number", value: initialAmount, onChange: e => setInitialAmount(e.target.value), placeholder: "Ej: 1000", className: "w-full" })
+                    ),
+                    React.createElement(InputGroup, { label: "Fecha de Inicio", tooltip: "La fecha en que comienza tu inversión." },
+                        React.createElement('input', { type: "date", value: startDate, onChange: e => setStartDate(e.target.value), className: "w-full" })
+                    ),
+                    React.createElement(InputGroup, { label: "Períodos (de 28 días)", tooltip: "La duración total de la proyección de tu inversión." },
+                        React.createElement('select', { value: duration, onChange: e => setDuration(Number(e.target.value)), className: "w-full" },
+                            React.createElement('option', { value: "6" }, "6 Períodos (~6 meses)"),
+                            React.createElement('option', { value: "12" }, "12 Períodos (~1 año)"),
+                            React.createElement('option', { value: "18" }, "18 Períodos (~1.5 años)"),
+                            React.createElement('option', { value: "24" }, "24 Períodos (~2 años)"),
+                            React.createElement('option', { value: "36" }, "36 Períodos (~3 años)")
+                        )
+                    ),
+                    React.createElement(InputGroup, { label: "% de Retiro por Período", tooltip: "Porcentaje de las ganancias a retirar cada período." },
+                        React.createElement('input', { type: "number", value: withdrawalPercent, onChange: e => setWithdrawalPercent(e.target.value), min: "0", max: "100", placeholder: "Ej: 50", className: "w-full" })
+                    ),
+                    parseFloat(withdrawalPercent) > 0 && (
+                        React.createElement(InputGroup, { label: "Fecha Inicio Retiros", tooltip: `Los retiros no pueden empezar antes del primer período (${formatDate(minWithdrawalDate)}).` },
+                            React.createElement('input', {
+                                type: "date",
+                                value: withdrawalStartDate,
+                                onChange: e => setWithdrawalStartDate(e.target.value),
+                                min: minWithdrawalDate,
+                                className: "w-full"
+                            })
+                        )
+                    )
+                ),
+                React.createElement('div', { className: "mt-6 border-t border-slate-200 dark:border-slate-700 pt-6" },
+                    React.createElement('h3', { className: "text-lg font-semibold mb-3 flex items-center gap-2" },
+                        "Aportes Adicionales",
+                        React.createElement('span', { className: "group relative" },
+                            React.createElement(HelpCircle, { size: 18, className: "text-slate-400 cursor-help" }),
+                            React.createElement('span', { className: "absolute bottom-full mb-2 w-60 bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none left-1/2 -translate-x-1/2" },
+                                "Añade montos específicos en fechas específicas. Déjalo vacío si no quieres añadir ninguno."
+                            )
+                        )
+                    ),
+                    React.createElement('div', { className: "space-y-3 max-h-60 overflow-y-auto pr-2" },
+                        contributions.map((c, index) => (
+                            React.createElement('div', { key: c.id, className: "grid grid-cols-1 sm:grid-cols-5 gap-3 items-center" },
+                                React.createElement('div', { className: "sm:col-span-2" },
+                                    React.createElement('input', { type: "date", value: c.date, onChange: e => handleContributionChange(c.id, 'date', e.target.value), className: "w-full bg-slate-100 dark:bg-[#0A0E17] border-2 border-slate-200 dark:border-slate-700 rounded-lg p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition", 'aria-label': "Contribution Date" })
+                                ),
+                                React.createElement('div', { className: "sm:col-span-2" },
+                                    React.createElement('input', { type: "number", value: c.amount, onChange: e => handleContributionChange(c.id, 'amount', e.target.value), placeholder: "Monto", className: "w-full bg-slate-100 dark:bg-[#0A0E17] border-2 border-slate-200 dark:border-slate-700 rounded-lg p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition", 'aria-label': "Contribution Amount" })
+                                ),
+                                React.createElement('div', { className: "sm:col-span-1 flex justify-end" },
+                                    contributions.length > 1 && (
+                                        React.createElement('button', { onClick: () => handleRemoveContribution(c.id), className: "p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-colors", 'aria-label': "Remove contribution" },
+                                            React.createElement(Trash2, { size: 18 })
+                                        )
+                                    )
+                                )
+                            )
+                        ))
+                    ),
+                    React.createElement('button', { onClick: handleAddContribution, className: "mt-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1" },
+                        React.createElement(Plus, { size: 16 }), " Añadir Aporte"
+                    )
+                ),
+                React.createElement('div', { className: "mt-6 border-t border-slate-200 dark:border-slate-700 pt-6" },
+                    React.createElement('div', { className: "flex items-center" },
+                        React.createElement('input', { type: "checkbox", id: "considerTaxes", checked: considerTaxes, onChange: e => setConsiderTaxes(e.target.checked), className: "h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" }),
+                        React.createElement('label', { htmlFor: "considerTaxes", className: "ml-3 block text-sm font-medium text-slate-700 dark:text-slate-300" },
+                            "Considerar 10% de comisión sobre ganancias (aprox. para intercambios y retiros)."
+                        )
+                    )
+                ),
+                React.createElement('div', { className: "mt-8 flex flex-col sm:flex-row gap-4" },
+                    React.createElement('button', { onClick: handleCalculate, className: "flex-1 w-full justify-center text-white bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2" },
+                        React.createElement(BarChart3, { size: 20 }), " Calcular Proyección"
+                    ),
+                    React.createElement('button', { onClick: handleReset, className: "flex-1 w-full justify-center bg-slate-200 dark:bg-[#1A1F35] text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-[#2D3548] hover:border-slate-400 dark:hover:border-slate-500 font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center gap-2" },
+                       React.createElement(Eraser, { size: 20 }), " Limpiar Formulario"
+                    )
+                )
+            ),
+            results && React.createElement(ResultsDisplay, { results: results })
+        )
+    );
+};
+
+// --- Inlined from components/GoalTab.tsx ---
+const GoalTab = () => {
+    const [initial, setInitial] = useState('1000');
+    const [target, setTarget] = useState('10000');
+    const [contribution, setContribution] = useState('100');
+    const [result, setResult] = useState(null);
+    const [error, setError] = useState('');
+
+    const calculateGoal = () => {
+        const initialAmount = parseFloat(initial);
+        const targetAmount = parseFloat(target);
+        const contributionAmount = parseFloat(contribution) || 0;
+
+        if (isNaN(initialAmount) || initialAmount <= 0 || isNaN(targetAmount) || targetAmount <= initialAmount) {
+            setError('Por favor, introduce valores válidos. La meta debe ser mayor que el monto inicial.');
+            setResult(null);
+            return;
+        }
+        setError('');
+
+        const GOAL_INTEREST_RATE = 0.24;
+        let capital = initialAmount;
+        let periods = 0;
+        const maxPeriods = 240; // 20 years safety limit
+
+        while (capital < targetAmount && periods < maxPeriods) {
+            periods++;
+            const earnings = capital * GOAL_INTEREST_RATE;
+            capital = capital + earnings + contributionAmount;
+        }
+
+        if (periods >= maxPeriods) {
+             setError('La meta parece demasiado lejana con los parámetros actuales. Considera aumentar tu aporte o ajustar la meta.');
+             setResult(null);
+        } else {
+            setResult({ periods, months: Math.round(periods * (28/30.44)) });
+        }
+    };
+
+    return (
+        React.createElement('div', { id: "goal-tab" },
+            React.createElement(Card, null,
+                React.createElement('h2', { className: "text-2xl font-bold text-center mb-6" }, "🎯 Planificador de Metas"),
+                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6" },
+                    React.createElement(InputGroup, { label: "Monto Inicial" },
+                        React.createElement('input', { type: "number", value: initial, onChange: (e) => setInitial(e.target.value), placeholder: "Ej: 1000", className: "w-full" })
+                    ),
+                    React.createElement(InputGroup, { label: "Monto Meta" },
+                        React.createElement('input', { type: "number", value: target, onChange: (e) => setTarget(e.target.value), placeholder: "Ej: 10000", className: "w-full" })
+                    ),
+                    React.createElement(InputGroup, { label: "Aporte por Período" },
+                        React.createElement('input', { type: "number", value: contribution, onChange: (e) => setContribution(e.target.value), placeholder: "Ej: 100", className: "w-full" })
+                    )
+                ),
+                React.createElement('button', { onClick: calculateGoal, className: "mt-8 w-full justify-center text-white bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2" },
+                    React.createElement(Calculator, { size: 20 }), " Calcular Tiempo Necesario"
+                ),
+                error && React.createElement('p', { className: "text-center text-red-500 mt-4" }, error),
+                result && (
+                    React.createElement('div', { className: "mt-8 text-center bg-slate-100 dark:bg-[#0A0E17] p-6 rounded-xl border border-slate-200 dark:border-slate-700" },
+                        React.createElement('p', { className: "text-slate-600 dark:text-slate-400" }, "Necesitarás aproximadamente:"),
+                        React.createElement('p', { className: "text-5xl font-bold my-2 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500" },
+                            result.periods
+                        ),
+                        React.createElement('p', { className: "text-slate-600 dark:text-slate-400" }, "períodos (de 28 días cada uno)"),
+                        React.createElement('p', { className: "text-sm text-slate-500 dark:text-slate-400 mt-2" },
+                            "Que son aproximadamente ", React.createElement('strong', null, result.months), " meses."
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
+// --- Inlined from components/HistoryTab.tsx ---
+const HistoryTab = ({ history, clearHistory, loadFromHistory }) => {
+    return (
+        React.createElement('div', { id: "history-tab" },
+            React.createElement(Card, null,
+                React.createElement('div', { className: "flex justify-between items-center mb-6" },
+                    React.createElement('h2', { className: "text-2xl font-bold" }, "📜 Historial de Cálculos"),
+                    history.length > 0 && (
+                        React.createElement('button', {
+                            onClick: clearHistory,
+                            className: "text-sm font-semibold text-red-500 hover:text-red-700 dark:hover:text-red-400 flex items-center gap-1.5"
+                        },
+                            React.createElement(Trash2, { size: 16 }), " Limpiar Todo"
+                        )
+                    )
+                ),
+                history.length === 0 ? (
+                    React.createElement('p', { className: "text-center text-slate-500 dark:text-slate-400 py-10" }, "Aún no hay cálculos guardados.")
+                ) : (
+                    React.createElement('div', { className: "space-y-4" },
+                        history.map(item => (
+                            React.createElement('div', {
+                                key: item.id,
+                                onClick: () => loadFromHistory(item),
+                                className: "bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all duration-200"
+                            },
+                                React.createElement('div', { className: "flex justify-between items-center" },
+                                    React.createElement('div', null,
+                                        React.createElement('p', { className: "font-semibold text-slate-800 dark:text-slate-100" },
+                                            formatCurrency(parseFloat(item.params.initialAmount)),
+                                            React.createElement('span', { className: "mx-2 text-slate-400" }, "→"),
+                                            formatCurrency(item.result.finalCapital)
+                                        ),
+                                        React.createElement('p', { className: "text-xs text-slate-500 dark:text-slate-400 mt-1" },
+                                            formatDate(item.date)
+                                        )
+                                    ),
+                                    React.createElement('div', { className: "text-right" },
+                                        React.createElement('p', { className: `font-bold ${item.result.roi >= 0 ? 'text-emerald-500' : 'text-red-500'}` },
+                                            `${item.result.roi.toFixed(2)}% ROI`
+                                        ),
+                                        React.createElement('p', { className: "text-xs text-slate-500 dark:text-slate-400 mt-1" },
+                                            `${item.params.duration} períodos`
+                                        )
+                                    )
+                                )
+                            )
+                        ))
+                    )
+                )
+            )
+        )
+    );
+};
+
+
+// --- Inlined from App.tsx ---
+const App = () => {
+    // const [theme, setTheme] = useLocalStorage('theme', 'dark'); // Lógica de tema eliminada
+    const [activeTab, setActiveTab] = useState('calculator');
+    const [isDonateModalOpen, setDonateModalOpen] = useState(false);
+    const [history, setHistory] = useLocalStorage('calculationHistory', []);
+    const [historyToLoad, setHistoryToLoad] = useState(null);
+
+    useEffect(() => {
+        // Forzar modo oscuro permanentemente
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    }, []); // El array vacío [] asegura que esto solo se ejecute una vez
+
+    const addToHistory = (item) => {
+        setHistory(prev => [item, ...prev.slice(0, 9)]);
+    };
+
+    const clearHistory = () => {
+        setHistory([]);
+    };
+
+    const loadFromHistory = useCallback((item) => {
+        setHistoryToLoad(item);
+        setActiveTab('calculator');
+    }, []);
+    
+    const onHistoryLoaded = useCallback(() => {
+        setHistoryToLoad(null);
+    }, []);
+
+    return (
+        React.createElement('div', { className: "min-h-screen text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-gradient-to-br dark:from-[#0A0E17] dark:to-[#161B2E] transition-colors duration-300" },
+            React.createElement('div', { className: "app-container max-w-7xl mx-auto p-4 md:p-8" },
+                React.createElement(Header, null), // Props 'theme' y 'setTheme' eliminadas
+                React.createElement(Tabs, { activeTab: activeTab, setActiveTab: setActiveTab }),
+                React.createElement('main', null,
+                    activeTab === 'calculator' && React.createElement(CalculatorTab, { addToHistory: addToHistory, historyToLoad: historyToLoad, onHistoryLoaded: onHistoryLoaded }),
+                    activeTab === 'goal' && React.createElement(GoalTab, null),
+                    activeTab === 'history' && React.createElement(HistoryTab, { history: history, clearHistory: clearHistory, loadFromHistory: loadFromHistory })
+                ),
+                React.createElement('footer', { className: "text-center mt-8 md:mt-12 text-slate-500 dark:text-slate-400 text-sm" },
+                    React.createElement('div', { className: "donate-footer py-5 border-t border-slate-200 dark:border-slate-700" },
+                        React.createElement('button', {
+                            onClick: () => setDonateModalOpen(true),
+                            className: "bg-slate-100 dark:bg-[#1A1F35] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#2D3548] hover:border-emerald-500 dark:hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-500 font-semibold py-2 px-6 rounded-lg transition-all duration-300 flex items-center gap-2 mx-auto"
+                        },
+                            React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className: "lucide lucide-heart" }, React.createElement('path', { d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" })),
+                            "Apoya esta Herramienta"
+                        )
+                    ),
+                    React.createElement('p', { className: "mt-4" }, "Regla de oro: Nunca inviertas dinero que necesites para vivir.")
+                )
+            ),
+            React.createElement(DonationModal, { isOpen: isDonateModalOpen, onClose: () => setDonateModalOpen(false) })
+        )
+    );
+};
+
+// --- Inlined from index.tsx ---
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  React.createElement(React.StrictMode, null,
+    React.createElement(App)
+  )
+);
+// ]]>
     </script>
 </body>
 </html>
